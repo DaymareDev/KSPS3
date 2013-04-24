@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>789</width>
-    <height>628</height>
+    <width>1024</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -69,9 +69,9 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>60</y>
-      <width>731</width>
-      <height>511</height>
+      <y>100</y>
+      <width>971</width>
+      <height>391</height>
      </rect>
     </property>
     <property name="verticalScrollBarPolicy">
@@ -84,13 +84,36 @@ p, li { white-space: pre-wrap; }
      <enum>QTextEdit::NoWrap</enum>
     </property>
    </widget>
+   <widget class="QTextBrowser" name="processTextBrowser">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>550</y>
+      <width>711</width>
+      <height>161</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ProcessConsoleLabel">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>510</y>
+      <width>121</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Console output:</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>789</width>
+     <width>1024</width>
      <height>26</height>
     </rect>
    </property>

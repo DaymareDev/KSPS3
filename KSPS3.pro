@@ -14,9 +14,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    saveformater.cpp
+    saveformater.cpp \
+    shipdata.cpp
 
 HEADERS  += mainwindow.h \
-    saveformater.h
+    saveformater.h \
+    shipdata.h
 
 FORMS    += mainwindow.ui
