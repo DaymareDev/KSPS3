@@ -1,8 +1,6 @@
 #ifndef SAVEFORMATER_H
 #define SAVEFORMATER_H
 
-#include "shipdata.h"
-
 #include <QObject>
 #include <QString>
 #include <QMutex>
@@ -10,8 +8,11 @@
 #include <queue>
 #include <map>
 
+
 namespace KSPS3
 {
+
+class VesselData;
 
 class SaveFormater : public QObject
 {
@@ -23,16 +24,18 @@ public:
 private:
     QString m_fromFilePath;
     QString m_toFilePath;
+    QString m_originalSave;
 
     QMutex m_logMutex;
     std::queue<QString> m_logMessages;
-    std::map<QString, ShipData> m_ships;
+    std::map<QString, VesselData*> m_ships;
 
     volatile bool m_isDone;
 
-
-    void createBackup(const QString& fromPath, const QString& toPath);
+    void readOriginalSave(const QString& fromPath);
+    void createBackup(const QString& fullText, const QString& toPath);
     void createLogMessage(const QString& message);
+    void isolateVessels(const QString &saveData, std::map<QString, VesselData*> &toPopulate);
 
 
 signals:

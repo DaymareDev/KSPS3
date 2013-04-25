@@ -5,12 +5,14 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextEdit>
+#include <QTextBrowser>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    m_diagnosticsWindow = findChild<QTextBrowser*>("processTextBrowser");
 }
 
 MainWindow::~MainWindow()
@@ -46,5 +48,9 @@ void MainWindow::on_BrowseSaveButton_clicked()
 
     KSPS3::SaveFormater formater(path);
     formater.CreateKSPS3File();
+    while(formater.HasMessage())
+    {
+        m_diagnosticsWindow->append(formater.GetMessage());
+    }
 
 }

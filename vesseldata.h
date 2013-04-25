@@ -6,16 +6,18 @@
 namespace KSPS3
 {
 
-class ShipData
+class VesselData
 {
 
 public:
-    ShipData(const QString& PID, const QString& name, const QString& fullShipText);
+    VesselData(const QString& PID, const QString& name, const QString& fullShipText);
+    VesselData();
     QString GetPID() const;
     QString GetName() const;
     const QString* AccessFullText();
 
 private:
+
     QString m_pid;
     QString m_name;
     QString m_fullShipText;
