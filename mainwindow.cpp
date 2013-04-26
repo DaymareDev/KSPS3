@@ -64,4 +64,54 @@ void MainWindow::on_BrowseSaveButton_clicked()
 
     fileEditor->setText(QString(stringBuilder.str().c_str()));
 
+    tryEnableInjectionButton();
+
 }
+
+void MainWindow::on_BrowseInjectFromButton_clicked()
+{
+    QTextEdit* pathField = this->findChild<QTextEdit*>("fileToInjectTextEdit");
+    QString path = pathField->toPlainText();
+    QFile selectedDir(path);
+    path = QFileDialog::getOpenFileName(0, QString("Select the save file to use"), path);
+    selectedDir.setFileName(path);
+    if(!selectedDir.exists())
+    {
+        return;
+    }
+
+    pathField->setText(path);
+    if(!path.endsWith(".sfs"))
+    {
+        QMessageBox::warning(0, QString("File Error"), QString("Unable to open the file, .sfs format required!"));
+        return;
+    }
+    tryEnableInjectionButton();
+
+}
+
+bool MainWindow::tryEnableInjectionButton()
+{
+    QTextEdit* savePathTextField = this->findChild<QTextEdit*>("SavePathTextEdit");
+    QString pathToSave = savePathTextField->toPlainText();
+    QFile saveFile(pathToSave);
+    QPushButton* injectButton = this->findChild<QPushButton*>("injectPushButton");
+    if(!saveFile.exists() || !pathToSave.endsWith(".sfs"))
+    {
+        injectButton->setEnabled(false);
+        return false;
+    }
+
+    QTextEdit* injectPathTextField = this->findChild<QTextEdit*>("fileToInjectTextEdit");
+    QString pathToInjectFrom = injectPathTextField->toPlainText();
+    QFile injectFile(pathToInjectFrom);
+
+    if(!injectFile.exists() || !pathToInjectFrom.endsWith(".sfs"))
+    {
+        injectButton->setEnabled(false);
+        return false;
+    }
+    injectButton->setEnabled(true);
+    return true;
+}
+

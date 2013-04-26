@@ -23,9 +23,13 @@ private slots:
 
     void on_BrowseSaveButton_clicked();
 
+    void on_BrowseInjectFromButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QTextBrowser* m_diagnosticsWindow;
+
+    bool tryEnableInjectionButton();
 };
 
 #endif // MAINWINDOW_H

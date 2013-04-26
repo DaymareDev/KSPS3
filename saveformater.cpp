@@ -66,6 +66,8 @@ void SaveFormater::isolateVessels(const QString &saveData)
         if(endOfVessel == -1)
         {
             endOfVessel = saveData.indexOf(actionGroupKey, startOfVessel + vesselKey.length());
+            endOfVessel = saveData.indexOf('}', endOfVessel+1);
+            endOfVessel = saveData.indexOf('}', endOfVessel+1);
         }
     }
     std::ostringstream completionLogStream;
@@ -81,9 +83,7 @@ void SaveFormater::CreateKSPS3File()
     readOriginalSave(m_fromFilePath);
     createBackup(m_originalSave, backupPath);
 
-
     isolateVessels(m_originalSave);
-
 
 }
 
