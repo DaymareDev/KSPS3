@@ -1,11 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "saveformater.h"
+#include "vesseldata.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextEdit>
 #include <QTextBrowser>
+#include <vector>
+#include <sstream>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -35,12 +38,7 @@ void MainWindow::on_BrowseSaveButton_clicked()
 
     pathField->setText(path);
     QTextEdit* fileEditor = this->findChild<QTextEdit*>("saveFileTextEdit");
-    if(path.endsWith(".sfs") && selectedDir.open(QIODevice::ReadOnly))
-    {
-
-        fileEditor->setText(QString(selectedDir.readAll()));
-    }
-    else
+    if(!path.endsWith(".sfs")  ||  !selectedDir.open(QIODevice::ReadOnly))
     {
         QMessageBox::warning(0, QString("File Error"), QString("Unable to open the file, .sfs format required!"));
         return;
@@ -52,5 +50,18 @@ void MainWindow::on_BrowseSaveButton_clicked()
     {
         m_diagnosticsWindow->append(formater.GetMessage());
     }
+
+    std::vector<KSPS3::VesselData*> vessels;
+    formater.GetVesselManifests(vessels);
+
+    std::stringstream stringBuilder;
+    for(std::size_t i = 0; i < vessels.size(); i++)
+    {
+        stringBuilder << "vessel " << i << std::endl << vessels[i]->GetName().toStdString()
+                      << std::endl << "PID: " << vessels[i]->GetPID().toStdString();
+        stringBuilder << std::endl << std::endl << (*vessels[i]->AccessFullText()).toStdString();
+    }
+
+    fileEditor->setText(QString(stringBuilder.str().c_str()));
 
 }

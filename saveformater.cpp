@@ -17,8 +17,26 @@ SaveFormater::SaveFormater(QString saveFilePath, QObject *parent) :
 
 }
 
+void SaveFormater::GetVesselManifests(std::vector<VesselData*> &vesselList)
+{
+    QMutexLocker lock(&m_shipsMutex);
+    std::map<QString, VesselData*>::iterator it =  m_ships.begin();
+    while(it != m_ships.end())
+    {
+        vesselList.push_back((*it).second);
+        it++;
+    }
+}
 
-void SaveFormater::isolateVessels(const QString &saveData, std::map<QString, VesselData*> &toPopulate)
+void SaveFormater::addVesselData(const QString& vesselPID, const QString& vesselName, const QString& fullVesselData)
+{
+    QMutexLocker lock(&m_shipsMutex);
+    VesselData* vessel = new VesselData(vesselPID,vesselName, fullVesselData);
+    m_ships.insert(std::pair<QString, VesselData*>(vesselPID,vessel));
+}
+
+
+void SaveFormater::isolateVessels(const QString &saveData)
 {
     QString vesselKey = QString("VESSEL");
     QString actionGroupKey("ACTIONGROUPS");
@@ -34,8 +52,7 @@ void SaveFormater::isolateVessels(const QString &saveData, std::map<QString, Ves
         int nameLocation = vesselText.indexOf("name = ") + 7;
         QString vesselName = vesselText.mid(nameLocation, vesselText.indexOf('\n', nameLocation) - nameLocation);
 
-        VesselData* vessel = new VesselData(vesselPID,vesselName, vesselText);
-        toPopulate.insert(std::pair<QString, VesselData*>(vesselPID,vessel));
+        addVesselData(vesselPID, vesselName, vesselText);
 
         ++numberOfVessels;
 
@@ -65,7 +82,7 @@ void SaveFormater::CreateKSPS3File()
     createBackup(m_originalSave, backupPath);
 
 
-    isolateVessels(m_originalSave, m_ships);
+    isolateVessels(m_originalSave);
 
 
 }

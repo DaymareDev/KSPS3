@@ -7,7 +7,7 @@
 
 #include <queue>
 #include <map>
-
+#include <vector>
 
 namespace KSPS3
 {
@@ -20,6 +20,7 @@ class SaveFormater : public QObject
 public:
     explicit SaveFormater(QString saveFilePath, QObject *parent = 0);
     void CreateKSPS3File();
+    void GetVesselManifests(std::vector<VesselData*> &vesselList);
 
 private:
     QString m_fromFilePath;
@@ -28,14 +29,17 @@ private:
 
     QMutex m_logMutex;
     std::queue<QString> m_logMessages;
+
+    QMutex m_shipsMutex;
     std::map<QString, VesselData*> m_ships;
 
     volatile bool m_isDone;
 
+    void addVesselData(const QString& vesselPID, const QString& vesselName, const QString& fullVesselData);
     void readOriginalSave(const QString& fromPath);
     void createBackup(const QString& fullText, const QString& toPath);
     void createLogMessage(const QString& message);
-    void isolateVessels(const QString &saveData, std::map<QString, VesselData*> &toPopulate);
+    void isolateVessels(const QString &saveData);
 
 
 signals:
