@@ -20,19 +20,29 @@ SaveFormater::SaveFormater(QString saveFilePath, QObject *parent) :
 void SaveFormater::GetVesselManifests(std::vector<VesselData*> &vesselList)
 {
     QMutexLocker lock(&m_shipsMutex);
-    std::map<QString, VesselData*>::iterator it =  m_ships.begin();
-    while(it != m_ships.end())
+    std::map<QString, VesselData*>::iterator it =  m_vessels.begin();
+    while(it != m_vessels.end())
     {
         vesselList.push_back((*it).second);
         it++;
     }
 }
 
+void SaveFormater::AddVessel(const VesselData* const toAdd)
+{
+   addVesselData(toAdd->GetPID(), toAdd->GetName(), *(toAdd->AccessFullText()));
+}
+
+QString SaveFormater::GetPath()
+{
+    return m_fromFilePath;
+}
+
 void SaveFormater::addVesselData(const QString& vesselPID, const QString& vesselName, const QString& fullVesselData)
 {
     QMutexLocker lock(&m_shipsMutex);
     VesselData* vessel = new VesselData(vesselPID,vesselName, fullVesselData);
-    m_ships.insert(std::pair<QString, VesselData*>(vesselPID,vessel));
+    m_vessels.insert(std::pair<QString, VesselData*>(vesselPID,vessel));
 }
 
 

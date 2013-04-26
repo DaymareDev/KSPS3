@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "saveformater.h"
 #include "vesseldata.h"
+#include "saveformater.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -23,71 +23,47 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+bool MainWindow::isSFSFile(const QString& pathToFile)
+{
+    if(!pathToFile.endsWith(".sfs"))
+    {
+        QMessageBox::warning(0, QString("File Error"), QString("Unable to open the file, .sfs format required!"));
+        return false;
+    }
+    QFile file(pathToFile);
+    if(!file.exists())
+    {
+        QMessageBox::warning(0, QString("File not found!"), QString("Unable to open the file: ") + pathToFile);
+        return false;
+    }
+    return true;
+}
+
 
 void MainWindow::on_BrowseSaveButton_clicked()
 {
-    QTextEdit* pathField = this->findChild<QTextEdit*>("SavePathTextEdit");
+    verifyPathField(QString("SavePathTextEdit"));
+}
+
+void MainWindow::verifyPathField(QString& pathfieldName)
+{
+    QTextEdit* pathField = this->findChild<QTextEdit*>(pathfieldName);
     QString path = pathField->toPlainText();
     QFile selectedDir(path);
     path = QFileDialog::getOpenFileName(0, QString("Select the save file to use"), path);
     selectedDir.setFileName(path);
-    if(!selectedDir.exists())
-    {
-        return;
-    }
-
     pathField->setText(path);
-    QTextEdit* fileEditor = this->findChild<QTextEdit*>("saveFileTextEdit");
-    if(!path.endsWith(".sfs")  ||  !selectedDir.open(QIODevice::ReadOnly))
+    if(!isSFSFile(path))
     {
         QMessageBox::warning(0, QString("File Error"), QString("Unable to open the file, .sfs format required!"));
         return;
     }
-
-    KSPS3::SaveFormater formater(path);
-    formater.CreateKSPS3File();
-    while(formater.HasMessage())
-    {
-        m_diagnosticsWindow->append(formater.GetMessage());
-    }
-
-    std::vector<KSPS3::VesselData*> vessels;
-    formater.GetVesselManifests(vessels);
-
-    std::stringstream stringBuilder;
-    for(std::size_t i = 0; i < vessels.size(); i++)
-    {
-        stringBuilder << "vessel " << i << std::endl << vessels[i]->GetName().toStdString()
-                      << std::endl << "PID: " << vessels[i]->GetPID().toStdString();
-        stringBuilder << std::endl << std::endl << (*vessels[i]->AccessFullText()).toStdString();
-    }
-
-    fileEditor->setText(QString(stringBuilder.str().c_str()));
-
     tryEnableInjectionButton();
-
 }
 
 void MainWindow::on_BrowseInjectFromButton_clicked()
 {
-    QTextEdit* pathField = this->findChild<QTextEdit*>("fileToInjectTextEdit");
-    QString path = pathField->toPlainText();
-    QFile selectedDir(path);
-    path = QFileDialog::getOpenFileName(0, QString("Select the save file to use"), path);
-    selectedDir.setFileName(path);
-    if(!selectedDir.exists())
-    {
-        return;
-    }
-
-    pathField->setText(path);
-    if(!path.endsWith(".sfs"))
-    {
-        QMessageBox::warning(0, QString("File Error"), QString("Unable to open the file, .sfs format required!"));
-        return;
-    }
-    tryEnableInjectionButton();
-
+    verifyPathField(QString("fileToInjectTextEdit"));
 }
 
 bool MainWindow::tryEnableInjectionButton()
@@ -115,3 +91,42 @@ bool MainWindow::tryEnableInjectionButton()
     return true;
 }
 
+
+void MainWindow::on_injectPushButton_clicked()
+{
+    findChild<QTextEdit*>("SavePathTextEdit")->setEnabled(false);
+    findChild<QTextEdit*>("fileToInjectTextEdit")->setEnabled(false);
+
+    QString injectFromPath = findChild<QTextEdit*>("fileToInjectTextEdit")->toPlainText();
+    QString coreSavePath = findChild<QTextEdit*>("SavePathTextEdit")->toPlainText();
+    if(!isSFSFile(coreSavePath) || !isSFSFile(injectFromPath))
+        QMessageBox::warning(0, QString("File error"), QString("One or more of your paths have become invalid, please re-check them!"));
+
+    KSPS3::SaveFormater coreSave(coreSavePath);
+    importSave(&coreSave);
+
+    KSPS3::SaveFormater injectionFile(injectFromPath);
+    std::vector<KSPS3::VesselData*> vesselsToInject;
+    importSave(&injectionFile, &vesselsToInject);
+
+    std::stringstream stringBuilder;
+    for(std::size_t i = 0; i < vesselsToInject.size(); i++)
+    {
+        stringBuilder << "vessel " << i << std::endl << vesselsToInject[i]->GetName().toStdString()
+                      << std::endl << "PID: " << vesselsToInject[i]->GetPID().toStdString();
+    }
+
+    findChild<QTextEdit*>("saveFileTextEdit")->setText(QString(stringBuilder.str().c_str()));
+}
+
+void MainWindow::importSave(KSPS3::SaveFormater *toUse, std::vector<KSPS3::VesselData*> *vesselsOut)
+{
+    toUse->CreateKSPS3File();
+    while(toUse->HasMessage())
+    {
+        m_diagnosticsWindow->append(toUse->GetMessage());
+    }
+    if(vesselsOut)
+        toUse->GetVesselManifests(*vesselsOut);
+    m_diagnosticsWindow->append(QString("Done importing vessels from") + toUse->GetPath() + QString("\n"));
+}

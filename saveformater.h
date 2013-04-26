@@ -21,6 +21,8 @@ public:
     explicit SaveFormater(QString saveFilePath, QObject *parent = 0);
     void CreateKSPS3File();
     void GetVesselManifests(std::vector<VesselData*> &vesselList);
+    void AddVessel(const VesselData *toAdd);
+    QString GetPath();
 
 private:
     QString m_fromFilePath;
@@ -31,7 +33,7 @@ private:
     std::queue<QString> m_logMessages;
 
     QMutex m_shipsMutex;
-    std::map<QString, VesselData*> m_ships;
+    std::map<QString, VesselData*> m_vessels;
 
     volatile bool m_isDone;
 

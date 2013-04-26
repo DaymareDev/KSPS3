@@ -15,7 +15,7 @@ QString VesselData::GetName() const
 {
     return m_name;
 }
-const QString* VesselData::AccessFullText()
+const QString* VesselData::AccessFullText() const
 {
     return &m_fullShipText;
 }

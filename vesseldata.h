@@ -14,7 +14,7 @@ public:
     VesselData();
     QString GetPID() const;
     QString GetName() const;
-    const QString* AccessFullText();
+    const QString* AccessFullText() const;
 
 private:
 
