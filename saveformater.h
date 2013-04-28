@@ -5,6 +5,8 @@
 #include <QString>
 #include <QMutex>
 
+#include <QSharedPointer>
+
 #include <queue>
 #include <map>
 #include <vector>
@@ -20,8 +22,8 @@ class SaveFormater : public QObject
 public:
     explicit SaveFormater(QString saveFilePath, QObject *parent = 0);
     void CreateKSPS3File();
-    void GetVesselManifests(std::vector<VesselData*> &vesselList);
-    void AddVessel(const VesselData *toAdd);
+    void GetVesselManifests(std::vector<QSharedPointer<KSPS3::VesselData>>& vesselList);
+    void AddVessel(QSharedPointer<KSPS3::VesselData> toAdd);
     QString GetPath();
 
 private:
@@ -33,7 +35,7 @@ private:
     std::queue<QString> m_logMessages;
 
     QMutex m_shipsMutex;
-    std::map<QString, VesselData*> m_vessels;
+    std::map<QString, QSharedPointer<VesselData>> m_vessels;
 
     volatile bool m_isDone;
 
